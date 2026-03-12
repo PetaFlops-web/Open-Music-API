@@ -3,6 +3,9 @@ import {
   getAlbumsById,
   editAlbumsById,
   deleteAlbumsById,
+  addLikeAlbum,
+  countLikeAlbum,
+  unlikeAlbum,
 } from "../service/servicesMusic.js";
 import response from "../../utils/responses.js";
 
@@ -77,9 +80,67 @@ const deleteAlbumHandler = async (req, res) => {
   }
 };
 
+const addLikeAlbumHandler = async (req, res) => {
+  try {
+    const { albumId } = req.params;
+    const { id: owner } = req.user;
+    await addLikeAlbum(owner, albumId);
+    return response(res, 201, "Albums liked successfully");
+  } catch (error) {
+    if (error.name === "NotFoundError") {
+      return response(res, 404, error.message);
+    }
+
+    if (error.name === "AuthorizationError") {
+      return response(res, 400, error.message);
+    }
+
+    return response(res, 500, "Terjadi kesalahan pada server");
+  }
+};
+
+const countLikeAlbumHandler = async (req, res) => {
+  try {
+    const { albumId } = req.params;
+    const result = await countLikeAlbum(albumId);
+
+    res.header("X-Data-Source", result.source);
+
+    return response(res, 200, "Albums retrieved successfully", {
+      likes: Number(result.likes),
+    });
+  } catch (error) {
+    if (error.name === "NotFoundError") {
+      return response(res, 404, error.message);
+    }
+  }
+};
+
+const unlikeAlbumHandler = async (req, res) => {
+  try {
+    const { albumId } = req.params;
+    const { id: owner } = req.user;
+    await unlikeAlbum(owner, albumId);
+    return response(res, 200, "Albums unliked successfully");
+  } catch (error) {
+    if (error.name === "NotFoundError") {
+      return response(res, 404, error.message);
+    }
+
+    if (error.name === "AuthorizationError") {
+      return response(res, 400, error.message);
+    }
+
+    return response(res, 500, "Terjadi kesalahan pada server");
+  }
+};
+
 export {
   createAlbumHandler,
   getAlbumsByIdHandler,
   editAlbumHandler,
   deleteAlbumHandler,
+  addLikeAlbumHandler,
+  countLikeAlbumHandler,
+  unlikeAlbumHandler,
 };
