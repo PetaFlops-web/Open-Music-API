@@ -54,6 +54,25 @@ const deleteAlbumsById = async (id) => {
   return result;
 };
 
+const uploadCover = async (file, albumId) => {
+    if(!file) {
+      throw new InvariantError('No cover uploaded');
+    }
+
+    const filename = file.filename;
+
+    const host = process.env.HOST || 'localhost';
+    const port = process.env.PORT || 5000;
+
+    const encodedFilename = encodeURIComponent(filename);
+    const fileLocation = `http://${host}:${port}/uploads/${encodedFilename}`;
+
+    const cover = await AlbumRepositories.addCoverAlbumById(albumId, fileLocation)
+
+    return cover;
+}
+
+export { addAlbums, getAlbumsById, editAlbumsById, deleteAlbumsById, uploadCover };
 const addLikeAlbum = async (userId, albumId) => {
   if (!userId) throw new AuthorizationError("No Authorization");
 
