@@ -4,6 +4,10 @@ import {
   getAlbumsByIdHandler,
   editAlbumHandler,
   deleteAlbumHandler,
+  uploadCoverHandler
+  addLikeAlbumHandler,
+  countLikeAlbumHandler,
+  unlikeAlbumHandler,
 } from "../music/controller/controllersMusic.js";
 import {
   createSongHandler,
@@ -21,7 +25,7 @@ import {
   deletePlaylistHandler,
 } from "../playlists/controller/playlist-controller.js";
 import { exportPlaylistHandler } from "../export/controller/export-controller.js";
-import { addAlbumSchema, editAlbumSchema } from "../music/validation/schema.js";
+import { addAlbumSchema, editAlbumSchema, uploadCoverSchema } from "../music/validation/schema.js";
 import { addSongSchema, editSongSchema } from "../song/validation/schema.js";
 import {
   postPlaylistSchema,
@@ -41,7 +45,7 @@ import {
 import validate from "../middleware/validate.js";
 import authenticateToken from "../middleware/auth.js";
 import { exportPayloadSchema } from "../export/validation/schema.js";
-
+import { multerUpload } from "../storage/storage-config.js"
 const router = Router();
 
 // router albums
@@ -49,7 +53,12 @@ router.post("/albums", validate(addAlbumSchema), createAlbumHandler);
 router.get("/albums/:albumId", getAlbumsByIdHandler);
 router.put("/albums/:albumId", validate(editAlbumSchema), editAlbumHandler);
 router.delete("/albums/:albumId", deleteAlbumHandler);
+router.post("/albums/:albumId/covers", multerUpload.single('cover'), uploadCoverHandler)
 
+// router like albums
+router.post("/albums/:albumId/likes", authenticateToken, addLikeAlbumHandler);
+router.get("/albums/:albumId/likes", countLikeAlbumHandler);
+router.delete("/albums/:albumId/likes", authenticateToken, unlikeAlbumHandler);
 // router songs
 router.post("/songs", validate(addSongSchema), createSongHandler);
 router.get("/songs", getSongsHandler);

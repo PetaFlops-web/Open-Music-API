@@ -1,5 +1,10 @@
 import AlbumRepositories from "../repository/index.js";
-import { InvariantError, NotFoundError } from "../../exceptions/index.js";
+
+import {
+  InvariantError,
+  NotFoundError,
+  AuthorizationError,
+} from "../../exceptions/index.js";
 
 const addAlbums = async (data) => {
   const albums = await AlbumRepositories.addAlbums(data);
@@ -49,4 +54,66 @@ const deleteAlbumsById = async (id) => {
   return result;
 };
 
-export { addAlbums, getAlbumsById, editAlbumsById, deleteAlbumsById };
+const uploadCover = async (file, albumId) => {
+    if(!file) {
+      throw new InvariantError('No cover uploaded');
+    }
+
+    const filename = file.filename;
+
+    const host = process.env.HOST || 'localhost';
+    const port = process.env.PORT || 5000;
+
+    const encodedFilename = encodeURIComponent(filename);
+    const fileLocation = `http://${host}:${port}/uploads/${encodedFilename}`;
+
+    const cover = await AlbumRepositories.addCoverAlbumById(albumId, fileLocation)
+
+    return cover;
+}
+
+export { addAlbums, getAlbumsById, editAlbumsById, deleteAlbumsById, uploadCover };
+const addLikeAlbum = async (userId, albumId) => {
+  if (!userId) throw new AuthorizationError("No Authorization");
+
+  const album = await AlbumRepositories.getAlbumsById(albumId);
+
+  if (!album) throw new NotFoundError("Album tidak ditemukan");
+
+  const albumDuplicateLike = await AlbumRepositories.checkDuplicateLike(
+    userId,
+    albumId,
+  );
+
+  if (albumDuplicateLike)
+    throw new AuthorizationError("Anda sudah menyukai album ini");
+
+  const result = await AlbumRepositories.likeAlbum(userId, albumId);
+  return result;
+};
+
+const countLikeAlbum = async (albumId) => {
+  const result = await AlbumRepositories.countLike(albumId);
+  return result;
+};
+
+const unlikeAlbum = async (userId, albumId) => {
+  if (!userId) throw new AuthorizationError("No Authorization");
+
+  const album = await AlbumRepositories.getAlbumsById(albumId);
+
+  if (!album) throw new NotFoundError("Album tidak ditemukan");
+
+  const result = await AlbumRepositories.deleteLike(userId, albumId);
+  return result;
+};
+
+export {
+  addAlbums,
+  getAlbumsById,
+  editAlbumsById,
+  deleteAlbumsById,
+  addLikeAlbum,
+  countLikeAlbum,
+  unlikeAlbum,
+};
