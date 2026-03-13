@@ -1,3 +1,4 @@
+
 /**
  * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
  */
@@ -9,12 +10,12 @@ export const shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 export const up = (pgm) => {
-  pgm.addColumn("users", {
-    fullname: {
-      type: "TEXT",
-      notNull: true,
-    },
-  });
+    pgm.addColumn("albums", {
+        cover: {
+            type: 'text',
+            notNull: false 
+        }
+    })
 };
 
 /**
@@ -23,5 +24,5 @@ export const up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 export const down = (pgm) => {
-  pgm.dropColumn("users", "fullname");
+    pgm.dropColumn("albums", "cover");
 };

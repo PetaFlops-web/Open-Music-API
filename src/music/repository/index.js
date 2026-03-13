@@ -18,6 +18,18 @@ class AlbumRepositories {
     return result.rows[0];
   }
 
+  async addCoverAlbumById(id, fileLocation) {
+  
+    const query = {
+      text: 'UPDATE albums SET cover = $1 WHERE id = $2 RETURNING cover',
+      values: [fileLocation, id],
+    };
+
+    const result = await this.pool.query(query);
+
+    return result.rows[0];
+  }
+
   async getAlbumsById(id) {
     const query = {
       text: `SELECT * FROM albums WHERE id = $1`,
