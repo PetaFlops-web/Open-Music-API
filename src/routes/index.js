@@ -5,6 +5,9 @@ import {
   editAlbumHandler,
   deleteAlbumHandler,
   uploadCoverHandler
+  addLikeAlbumHandler,
+  countLikeAlbumHandler,
+  unlikeAlbumHandler,
 } from "../music/controller/controllersMusic.js";
 import {
   createSongHandler,
@@ -52,6 +55,10 @@ router.put("/albums/:albumId", validate(editAlbumSchema), editAlbumHandler);
 router.delete("/albums/:albumId", deleteAlbumHandler);
 router.post("/albums/:albumId/covers", multerUpload.single('cover'), uploadCoverHandler)
 
+// router like albums
+router.post("/albums/:albumId/likes", authenticateToken, addLikeAlbumHandler);
+router.get("/albums/:albumId/likes", countLikeAlbumHandler);
+router.delete("/albums/:albumId/likes", authenticateToken, unlikeAlbumHandler);
 // router songs
 router.post("/songs", validate(addSongSchema), createSongHandler);
 router.get("/songs", getSongsHandler);
